@@ -63,6 +63,27 @@ without editing the code.
 if you need to and can be found in
 :func:`quicktile.layout.make_winsplit_positions`.)
 
+.. _RowCount:
+
+``RowCount = None``
+"""""""""""""""""""
+
+Like ColumnCount, but for rows.  Ignored if `None` or less than `3`.
+
+If set to 2 or more, affects all Window Tiling actions.
+e.g. If set to 3, the `bottom` command will cycle as before,
+but cycling will also add 3 new full spans along the bottom
+similar to how the `left` command fulling spans the left hand side.
+
+Additionally, commands like `top-left` will begin to cycle with new orientations
+to consider rows.
+
+This functionality works well for portrait orientations.
+
+again, see
+:func:`quicktile.layout.make_winsplit_positions` for for more info.
+
+
 .. _MarginX_Percent:
 
 ``MarginX_Percent = 0``
