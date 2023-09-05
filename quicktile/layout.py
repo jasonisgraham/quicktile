@@ -8,6 +8,7 @@ __license__ = "GNU GPL 2.0 or later"
 # pylint: disable=unsubscriptable-object
 # pylint: disable=wrong-import-order
 
+from functools import reduce
 import logging
 
 from .util import Gravity, Rectangle
@@ -171,12 +172,14 @@ class GravityLayout(object):  # pylint: disable=too-few-public-methods
 
 
 def make_winsplit_positions(columns: int,
+                            rows: int = 1,
                             margin_x: float = 0, margin_y: float = 0
                             ) -> Dict[str, List[PercentRectTuple]]:
     """Generate the classic WinSplit Revolution tiling presets
 
     :params columns: The number of columns that each tiling preset should be
         built around.
+            rows: further split corner, top, bottom positions by height
     :return: A dict of presets ready to feed into
         :meth:`quicktile.commands.CommandRegistry.add_many`.
 
@@ -204,21 +207,33 @@ def make_winsplit_positions(columns: int,
 
     gvlay = GravityLayout(margin_x, margin_y)
     col_width = 1.0 / columns
-    cycle_steps = tuple(round(col_width * x, 3)
-                        for x in range(1, columns))
+    row_width = 1.0 / rows
+    col_cycle_steps = tuple(round(col_width * x, 3) for x in range(1, columns))
+    row_cycle_steps = list(reduce(lambda a,b:a+b, [(round(row_width * x / 2, 3), 1-round(row_width * x / 2, 3)) for x in range(1, rows)]))
 
-    center_steps = (1.0,) + cycle_steps
-    edge_steps = (0.5,) + cycle_steps
+    center_steps = (1.0,) + col_cycle_steps
+    edge_steps = (0.5,) + col_cycle_steps
+
+    row_edge_steps = [0.5] + row_cycle_steps
 
     positions = {
         'center': [gvlay(width, 1, 'center') for width in center_steps],
     }
 
     for grav in ('top', 'bottom'):
-        positions[grav] = [gvlay(width, 0.5, grav) for width in center_steps]
+        positions[grav] = [gvlay(width, height, grav)
+                           for width in center_steps
+                           for height in row_edge_steps]
     for grav in ('left', 'right'):
         positions[grav] = [gvlay(width, 1, grav) for width in edge_steps]
     for grav in ('top-left', 'top-right', 'bottom-left', 'bottom-right'):
-        positions[grav] = [gvlay(width, 0.5, grav) for width in edge_steps]
+        positions[grav] = [gvlay(width, height, grav)
+                           for width in edge_steps
+                           for height in row_edge_steps]
+
+    f = open("/tmp/butt.log", "a")
+    f.write('echo cols: {}, rows: {}, col_cycle_steps: {}, row_cycle_steps {}, positions: {}\n'.format(columns, rows, col_cycle_steps, row_cycle_steps, positions, ))
+    f.close()
+
 
     return positions

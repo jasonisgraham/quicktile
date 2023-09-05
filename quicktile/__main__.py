@@ -208,6 +208,7 @@ def main() -> None:
     commands.cycle_dimensions = commands.commands.add_many(
         layout.make_winsplit_positions(
             config.getint('general', 'ColumnCount'),
+            config.getint('general', 'RowCount'),
             config.getfloat('general', 'MarginX_Percent') / 100,
             config.getfloat('general', 'MarginY_Percent') / 100
         )
