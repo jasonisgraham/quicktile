@@ -70,7 +70,7 @@ if you need to and can be found in
 
 Like ColumnCount, but for rows.  Ignored if `None` or less than `3`.
 
-If set to 2 or more, affects all Window Tiling actions.
+If set to 2 or more, affects all Window Tiling actions except for `left`, `right`, and `center`.
 e.g. If set to 3, the `bottom` command will cycle as before,
 but cycling will also add 3 new full spans along the bottom
 similar to how the `left` command fulling spans the left hand side.

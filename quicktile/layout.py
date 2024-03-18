@@ -10,6 +10,7 @@ __license__ = "GNU GPL 2.0 or later"
 
 from functools import reduce
 import logging
+from pprint import pprint
 
 from .util import Gravity, Rectangle
 
@@ -172,7 +173,7 @@ class GravityLayout(object):  # pylint: disable=too-few-public-methods
 
 
 def make_winsplit_positions(columns: int,
-                            rows: int = 1,
+                            rows: int = 2,
                             margin_x: float = 0, margin_y: float = 0
                             ) -> Dict[str, List[PercentRectTuple]]:
     """Generate the classic WinSplit Revolution tiling presets
@@ -205,37 +206,61 @@ def make_winsplit_positions(columns: int,
         'top-right': [(0.5, 0.0, 0.5, 0.5), (0.5, 0.0, 0.5, 0.5)]}
     """
 
-    gvlay = GravityLayout(margin_x, margin_y)
-    col_width = 1.0 / columns
-    col_cycle_steps = tuple(round(col_width * x, 3)
-                            for x in range(1, columns))
-    row_width = 1.0 / rows
-    row_cycle_steps = list(reduce(lambda a, b: a + b,
-                                  [(round(row_width * x / 2, 3), 1 - round(row_width * x / 2, 3)) for x in
-                                   range(1, rows)]))
+    with (open("/tmp/butt.log", "a") as log_file):
+        row_placement = (None is not rows and rows > 2)
+        gvlay = GravityLayout(margin_x, margin_y)
+        col_width = 1.0 / columns
+        col_cycle_steps = tuple(round(col_width * x, 3) for x in range(1, columns))
+        f = open("/tmp/butt.log", "a")
+        f.write('echo cols: {}, rows: {}\n'.format(columns, rows, col_cycle_steps, ))
+        pprint("log_file: {}, rows: {}, row_placement {}".format(log_file, rows, row_placement), log_file)
 
-    center_steps = (1.0,) + col_cycle_steps
-    edge_steps = (0.5,) + col_cycle_steps
+        center_steps = (1.0,) + col_cycle_steps
+        edge_steps = (0.5,) + col_cycle_steps
 
-    row_edge_steps = [0.5] + row_cycle_steps
+        positions = {
+            'center': [gvlay(width, 1, 'center') for width in center_steps],
+        }
 
-    positions = {
-        'center': [gvlay(width, 1, 'center') for width in center_steps],
-    }
+        for grav in ('top', 'bottom'):
+            positions[grav] = [gvlay(width, 0.5, grav) for width in center_steps]
+        for grav in ('left', 'right'):
+            positions[grav] = [gvlay(width, 1, grav) for width in edge_steps]
+        for grav in ('top-left', 'top-right', 'bottom-left', 'bottom-right'):
+            positions[grav] = [gvlay(width, 0.5, grav) for width in edge_steps]
 
-    for grav in ('top',):
-        top_pos = [gvlay(1.0, height, grav) for height in row_edge_steps] + [gvlay(x=0, y=0.25, width=1, height=.25)]
-        positions[grav] = top_pos
+        pprint("", log_file)
+        pprint("", log_file)
+        row_width = 1.0 / rows
+        row_cycle_steps = list(reduce(lambda a, b: a + b,
+                                      [(round(row_width * x / 2, 3), 1 - round(row_width * x / 2, 3)) for x in
+                                       range(1, rows)]))
 
-    for grav in ('bottom',):
-        positions[grav] = [gvlay(1.0, height, grav) for height in row_edge_steps] + [gvlay(x=0, y=0.75, width=1, height=.25)]
+        row_edge_steps = [0.5] + row_cycle_steps
+        pprint("row_cycle_steps: {}".format(row_cycle_steps), log_file)
 
-    for grav in ('left', 'right'):
-        positions[grav] = [gvlay(width, 1, grav) for width in edge_steps]
+        for grav in ('bottom-fill', 'top-fill'):
+            positions[grav] = [
+                (0.0, 0.5,   1, 0.5),
+                (0.0, 2.0/rows, 1, 1.0/rows),
+                (0.0, 1.0/rows, 1, 2.0/rows),
 
-    for grav in ('top-left', 'top-right', 'bottom-left', 'bottom-right'):
-        positions[grav] = [gvlay(width, height, grav)
-                           for width in edge_steps
-                           for height in row_edge_steps]
+                # middle 1/rows of screen
+                (1.0/rows, 0.5,   1.0/rows, 0.5),
+                (1.0/rows, 2.0/rows, 1.0/rows, 1.0/rows),
+                (1.0/rows, 1.0/rows, 1.0/rows, 2.0/rows),
+
+                # middle 2/rows of screen
+                (1.0/6, 0.5,   (1-1.0/rows), 0.5),
+                (1.0/6, 2.0/rows, (1-1.0/rows), 1.0/rows),
+                (1.0/6, 1.0/rows, (1-1.0/rows), 2.0/rows),
+            ]
+            
+        pprint("row: {}, columns: {}".format(rows, columns), log_file)
+        pprint("bottom: {}".format(positions['bottom']), log_file)
+        # pprint("left: {}".format(positions['left']), log_file)
+        # pprint("all positions: {}".format(positions), log_file)
+        pprint("", log_file)
+        pprint("", log_file)
 
     return positions

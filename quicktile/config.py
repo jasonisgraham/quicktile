@@ -22,7 +22,7 @@ DEFAULTS: Dict[str, CfgDict] = {
         'ModMask': '<Ctrl><Alt>',
         'MovementsWrap': True,
         'ColumnCount': 3,
-        'RowCount': None,
+        'RowCount': 3,
         'MarginX_Percent': 0,
         'MarginY_Percent': 0,
     },
