@@ -56,6 +56,7 @@ class Gravity(Enum):  # pylint: disable=too-few-public-methods
     """Gravity definitions used by :class:`Rectangle`"""
     TOP_LEFT = (0.0, 0.0)
     TOP = (0.5, 0.0)
+    TOP_FILL = (0.5, 0.0)
     TOP_RIGHT = (1.0, 0.0)
     LEFT = (0.0, 0.5)
     CENTER = (0.5, 0.5)
@@ -63,6 +64,7 @@ class Gravity(Enum):  # pylint: disable=too-few-public-methods
     BOTTOM_LEFT = (0.0, 1.0)
     BOTTOM = (0.5, 1.0)
     BOTTOM_RIGHT = (1.0, 1.0)
+    BOTTOM_FILL = (1.0, 1.0)
 
 
 def clamp_idx(idx: int, stop: int, wrap: bool = True) -> int:

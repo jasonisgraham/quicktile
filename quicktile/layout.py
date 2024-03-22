@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 
 def resolve_fractional_geom(fract_geom: Union[PercentRectTuple, Rectangle],
-        monitor_rect: Rectangle) -> Rectangle:
+                            monitor_rect: Rectangle) -> Rectangle:
     """Resolve proportional (eg. ``0.5``) coordinates.
 
     :param fract_geom: An ``(x, y, w, h)`` tuple containing monitor-relative
@@ -114,12 +114,12 @@ class GravityLayout(object):  # pylint: disable=too-few-public-methods
     def __init__(self, margin_x: float = 0, margin_y: float = 0):
         if margin_x >= 1:
             log.warning("margin_x should be a percentage of the screen width "
-                "less than 100%% (got %d%%)",
-                margin_x * 100)
+                        "less than 100%% (got %d%%)",
+                        margin_x * 100)
         if margin_y >= 1:
             log.warning("margin_y should be a percentage of the screen height "
-                "less than 100%% (got %d%%)",
-                margin_y * 100)
+                        "less than 100%% (got %d%%)",
+                        margin_y * 100)
 
         self.margin_x = min(margin_x, 1)
         self.margin_y = min(margin_y, 1)
@@ -216,51 +216,51 @@ def make_winsplit_positions(columns: int,
         pprint("log_file: {}, rows: {}, row_placement {}".format(log_file, rows, row_placement), log_file)
 
         center_steps = (1.0,) + col_cycle_steps
+        f.write('dog')
         edge_steps = (0.5,) + col_cycle_steps
+        f.write('dog')
 
         positions = {
             'center': [gvlay(width, 1, 'center') for width in center_steps],
         }
+        f.write('dog2')
 
         for grav in ('top', 'bottom'):
             positions[grav] = [gvlay(width, 0.5, grav) for width in center_steps]
+        f.write('dog3')
         for grav in ('left', 'right'):
             positions[grav] = [gvlay(width, 1, grav) for width in edge_steps]
+        f.write('dog4')
         for grav in ('top-left', 'top-right', 'bottom-left', 'bottom-right'):
             positions[grav] = [gvlay(width, 0.5, grav) for width in edge_steps]
+        f.write('dog5')
 
         pprint("", log_file)
         pprint("", log_file)
+        f.write('dog6')
+
         row_width = 1.0 / rows
+        f.write('dog7')
         row_cycle_steps = list(reduce(lambda a, b: a + b,
                                       [(round(row_width * x / 2, 3), 1 - round(row_width * x / 2, 3)) for x in
                                        range(1, rows)]))
-
-        row_edge_steps = [0.5] + row_cycle_steps
-        pprint("row_cycle_steps: {}".format(row_cycle_steps), log_file)
+        f.write('dog8')
 
         for grav in ('bottom-fill', 'top-fill'):
-            positions[grav] = [
-                (0.0, 0.5,   1, 0.5),
-                (0.0, 2.0/rows, 1, 1.0/rows),
-                (0.0, 1.0/rows, 1, 2.0/rows),
+            f.write("row_cycle_steps: {}".format(row_cycle_steps))
+            row_edge_steps = [0.5] + row_cycle_steps
+            positions[grav] = [gvlay(width, height, grav)
+                               for width in center_steps
+                               for height in row_edge_steps]
+        f.write('dog9')
 
-                # middle 1/rows of screen
-                (1.0/rows, 0.5,   1.0/rows, 0.5),
-                (1.0/rows, 2.0/rows, 1.0/rows, 1.0/rows),
-                (1.0/rows, 1.0/rows, 1.0/rows, 2.0/rows),
-
-                # middle 2/rows of screen
-                (1.0/6, 0.5,   (1-1.0/rows), 0.5),
-                (1.0/6, 2.0/rows, (1-1.0/rows), 1.0/rows),
-                (1.0/6, 1.0/rows, (1-1.0/rows), 2.0/rows),
-            ]
-            
         pprint("row: {}, columns: {}".format(rows, columns), log_file)
-        pprint("bottom: {}".format(positions['bottom']), log_file)
+        f.write('dog10')
+        f.write("bottom: {}".format(positions['bottom']))
         # pprint("left: {}".format(positions['left']), log_file)
-        # pprint("all positions: {}".format(positions), log_file)
+        pprint("all positions: {}".format(positions), log_file)
         pprint("", log_file)
         pprint("", log_file)
+
 
     return positions
